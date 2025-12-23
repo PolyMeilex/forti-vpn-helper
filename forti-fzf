@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cmd=$(echo -e "up\ndown\nstatus" | fzf --layout reverse --height=50%)
+
+case "$cmd" in
+  up)
+    path=$(ls /etc/forti-vpn-*.conf | fzf --layout reverse --height=50%)
+    name=${path##*/}
+    value=${name#forti-vpn-}
+    value=${value%.conf}
+    ./forti-vpn up $value
+    ;;
+  down)
+    ./forti-vpn down $value
+    ;;
+  status)
+    ./forti-vpn status
+    ;;
+  *)
+    echo "Unknown selection: $cmd" >&2
+    exit 1
+    ;;
+esac
