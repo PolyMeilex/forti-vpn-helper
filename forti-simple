@@ -1,0 +1,30 @@
+#!/bin/bash
+
+path=$(ls /etc/forti-vpn-*.conf | fzf --layout reverse --height=50%)
+
+source "$path"
+
+FORTIVPN_URL=${FORTIVPN_URL:-""}
+FORTIVPN_USER=${FORTIVPN_USER:-""}
+FORTIVPN_PASSWORD=${FORTIVPN_PASSWORD:-""}
+FORTIVPN_VPN_TRUSTED_CERT=${FORTIVPN_VPN_TRUSTED_CERT:-""}
+
+if [ ! -n "${FORTIVPN_URL}" ]; then
+  echo "Missing FORTIVPN_URL"
+  exit 1
+fi
+
+start_saml() {
+  xdg-open "https://$FORTIVPN_URL/remote/saml/start?redirect=1" &
+  sudo openfortivpn --saml-login $FORTIVPN_URL
+}
+
+start_creds() {
+  sudo openfortivpn $FORTIVPN_URL --username $FORTIVPN_USER --password $FORTIVPN_PASSWORD --trusted-cert ${FORTIVPN_VPN_TRUSTED_CERT}
+}
+
+if [ ! -n "${FORTIVPN_USER}" ]; then
+  start_saml
+else
+  start_creds
+fi
